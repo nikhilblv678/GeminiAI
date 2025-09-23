@@ -1,10 +1,6 @@
 import streamlit as st
 import google.generativeai as genai
 import os
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
 
 # Configure Gemini API
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
@@ -22,14 +18,24 @@ if "chat" not in st.session_state:
 # Display chat history
 for msg in st.session_state.chat.history:
     with st.chat_message("user" if msg.role == "user" else "assistant"):
-        st.markdown(msg.parts[0].text)
+        if hasattr(msg, "parts") and msg.parts:
+            st.markdown(msg.parts[0].text)
+        else:
+            st.markdown(msg.text)
 
 # User input
 if prompt := st.chat_input("Ask me anything..."):
+    # Display user message
     with st.chat_message("user"):
         st.markdown(prompt)
 
+    # Send to Gemini
     response = st.session_state.chat.send_message(prompt)
 
+    # Display assistant message
     with st.chat_message("assistant"):
         st.markdown(response.text)
+
+
+
+
